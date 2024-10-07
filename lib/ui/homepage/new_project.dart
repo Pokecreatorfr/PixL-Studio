@@ -117,9 +117,21 @@ class _NewProjectState extends State<NewProject> {
                           bool exists = Directory(path).existsSync();
                           if (exists) {
                             createNewProject(path);
-                            ProjectService.path = path;
-                            widget.changePage();
-                            Navigator.pop(context);
+                            if (ProjectService.OpenProject(path)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content:
+                                        Text("Project created successfully")),
+                              );
+                              widget.changePage();
+                              Navigator.pop(context);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        "Error while creating the project, please try again")),
+                              );
+                            }
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -174,18 +186,34 @@ class SubTopBar extends StatelessWidget {
 
 void createNewProject(String path) {
   Directory(path).createSync(recursive: true);
-  Directory('$path/data').createSync();
-  Directory('$path/data/Maps').createSync();
-  Directory('$path/data/Tilesets').createSync();
-  Directory('$path/data/Scripts').createSync();
+  Directory('$path/Data').createSync();
+  Directory('$path/Data/Maps').createSync();
+  Directory('$path/Data/Tilesets').createSync();
+  Directory('$path/Data/Scripts').createSync();
+  Directory('$path/Data/Assets').createSync();
+  Directory('$path/Data/Assets/Images').createSync();
+  Directory('$path/Data/Assets/Audios').createSync();
+  Directory('$path/Data/Assets/Fonts').createSync();
+
+  File('$path/Data/Assets/assets.pixl').createSync();
+
+  File('$path/Data/Tilesets/tilesets.pixl').createSync();
+
+  Map tilesets = {
+    'tilesets': [],
+  };
+
+  File('$path/Data/Tilesets/tilesets.pixl')
+      .writeAsStringSync(jsonEncode(tilesets));
 
   File('$path/project.pixl').createSync();
 
   Map project = {
     'version': '0.0.1',
-    'map directory': 'Data/Maps',
-    'tileset directory': 'Data/Tilesets',
-    'script directory': 'Data/Scripts',
+    'map directory': 'Data\\Maps',
+    'tileset directory': 'Data\\Tilesets',
+    'script directory': 'Data\\Scripts',
+    'assets directory': 'Data\\Assets',
   };
 
   File('$path/project.pixl').writeAsStringSync(jsonEncode(project));

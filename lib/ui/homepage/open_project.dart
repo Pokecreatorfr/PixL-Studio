@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:pixlstudio/defines/colors.dart';
 import 'package:pixlstudio/ui/homepage/new_project.dart';
+import 'package:pixlstudio/services/project_service.dart';
 
 class OpenProject extends StatelessWidget {
   OpenProject({super.key, required this.changePage});
@@ -23,11 +24,22 @@ class OpenProject extends StatelessWidget {
                 color: AppColor.secondary,
                 hoverColor: AppColor.yellow,
                 onPressed: () async {
-                  // open pixl file, only one file window
-                  result = await FilePicker.platform.pickFiles(
-                    type: FileType.custom,
-                    allowedExtensions: ['pixl'],
-                  );
+                  // open directory
+                  final String path =
+                      await FilePicker.platform.getDirectoryPath() ?? '';
+
+                  if (path != "") {
+                    if (ProjectService.OpenProject(path)) {
+                      changePage();
+                    } else {
+                      // error message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(path),
+                        ),
+                      );
+                    }
+                  }
                 },
                 child: const Text(
                   'Open Project',
